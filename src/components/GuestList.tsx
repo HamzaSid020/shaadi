@@ -27,12 +27,16 @@ import {
   Chip,
   TablePagination,
   SelectChangeEvent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import { Add as AddIcon, Search as SearchIcon, Clear as ClearIcon, Edit as EditIcon, Check as CheckIcon, Close as CloseIcon, Refresh as RefreshIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
+import { Add as AddIcon, Search as SearchIcon, Clear as ClearIcon, Edit as EditIcon, Check as CheckIcon, Close as CloseIcon, Refresh as RefreshIcon, CloudUpload as CloudUploadIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Guest } from '../types/guest';
 import { getGuests, updateGuest, guestKeys } from '../services/guestService';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 const GuestList: React.FC = () => {
@@ -47,23 +51,32 @@ const GuestList: React.FC = () => {
   const [filterCountry, setFilterCountry] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<Guest> | null>(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Update guest mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Guest> }) => updateGuest(id, data),
+    mutationFn: async (updatedGuest: Guest) => {
+      if (!updatedGuest.id) return;
+      const guestRef = doc(db, 'guests', updatedGuest.id);
+      await updateDoc(guestRef, updatedGuest);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: guestKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['guests'] });
       setEditingId(null);
       setEditingData(null);
-    },
+      setOpenEditDialog(false);
+    }
   });
 
   // Fetch all guests with caching
   const { data: allGuests, isLoading, error } = useQuery<Guest[]>({
-    queryKey: guestKeys.lists(),
-    queryFn: getGuests,
+    queryKey: ['guests'],
+    queryFn: async () => {
+      const querySnapshot = await getDocs(collection(db, 'guests'));
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Guest[];
+    }
   });
 
   // Apply filters and search
@@ -167,9 +180,10 @@ const GuestList: React.FC = () => {
     }
   };
 
-  const handleEditClick = (guest: Guest) => {
+  const handleEdit = (guest: Guest) => {
     setEditingId(guest.id);
     setEditingData({ ...guest });
+    setOpenEditDialog(true);
   };
 
   const handleEditChange = (field: keyof Guest, value: string | number) => {
@@ -207,17 +221,24 @@ const GuestList: React.FC = () => {
 
   const handleEditSave = () => {
     if (editingId && editingData) {
-      updateMutation.mutate({ id: editingId, data: editingData });
+      updateMutation.mutate(editingData);
     }
   };
 
   const handleEditCancel = () => {
     setEditingId(null);
     setEditingData(null);
+    setOpenEditDialog(false);
   };
 
   const handleBulkImport = () => {
     navigate('/bulk-import');
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this guest?')) {
+      deleteMutation.mutate(id);
+    }
   };
 
   if (isLoading) {
@@ -259,7 +280,7 @@ const GuestList: React.FC = () => {
           <Tooltip title="Refresh List">
             <IconButton
               color="primary"
-              onClick={() => queryClient.invalidateQueries({ queryKey: guestKeys.lists() })}
+              onClick={() => queryClient.invalidateQueries({ queryKey: ['guests'] })}
               disabled={isLoading}
             >
               {isLoading ? <CircularProgress size={24} /> : <RefreshIcon />}
@@ -574,7 +595,7 @@ const GuestList: React.FC = () => {
                       <IconButton
                         size="small"
                         color="primary"
-                        onClick={() => handleEditClick(guest)}
+                        onClick={() => handleEdit(guest)}
                       >
                         <EditIcon />
                       </IconButton>
@@ -594,6 +615,86 @@ const GuestList: React.FC = () => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
+      <Dialog open={openEditDialog} onClose={handleEditCancel}>
+        <DialogTitle>Edit Guest</DialogTitle>
+        <DialogContent>
+          {editingData && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              <TextField
+                label="Name"
+                value={editingData.name}
+                onChange={(e) => handleEditChange('name', e.target.value)}
+              />
+              <TextField
+                label="Spouse"
+                type="number"
+                value={editingData.spouse}
+                onChange={(e) => handleEditChange('spouse', Number(e.target.value))}
+              />
+              <TextField
+                label="Children"
+                type="number"
+                value={editingData.children}
+                onChange={(e) => handleEditChange('children', Number(e.target.value))}
+              />
+              <TextField
+                label="Infants"
+                type="number"
+                value={editingData.infants}
+                onChange={(e) => handleEditChange('infants', Number(e.target.value))}
+              />
+              <TextField
+                label="Country"
+                value={editingData.country}
+                onChange={(e) => handleEditChange('country', e.target.value)}
+              />
+              <FormControl fullWidth>
+                <InputLabel>Guest Type</InputLabel>
+                <Select
+                  value={editingData.guestType}
+                  onChange={(e) => handleEditChange('guestType', e.target.value)}
+                >
+                  <MenuItem value="family">Family</MenuItem>
+                  <MenuItem value="friend">Friend</MenuItem>
+                  <MenuItem value="colleague">Colleague</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  value={editingData.priority}
+                  onChange={(e) => handleEditChange('priority', e.target.value)}
+                >
+                  <MenuItem value="very high">Very High</MenuItem>
+                  <MenuItem value="high">High</MenuItem>
+                  <MenuItem value="medium">Medium</MenuItem>
+                  <MenuItem value="low">Low</MenuItem>
+                  <MenuItem value="very low">Very Low</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>RSVP Status</InputLabel>
+                <Select
+                  value={editingData.rsvpStatus}
+                  onChange={(e) => handleEditChange('rsvpStatus', e.target.value)}
+                >
+                  <MenuItem value="accepted">Accepted</MenuItem>
+                  <MenuItem value="declined">Declined</MenuItem>
+                  <MenuItem value="pending">Pending</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditCancel}>Cancel</Button>
+          <Button onClick={handleEditSave} variant="contained" color="primary">
+            Update
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
