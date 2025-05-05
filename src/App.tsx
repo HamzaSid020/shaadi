@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { CssBaseline, GlobalStyles, useTheme, useMediaQuery } from '@mui/material';
+import { CssBaseline, GlobalStyles, useTheme } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -75,14 +75,6 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 };
 
 const App: React.FC = () => {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

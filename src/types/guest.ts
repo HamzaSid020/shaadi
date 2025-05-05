@@ -4,9 +4,9 @@ export interface Guest {
   spouse: number;
   children: number;
   infants: number;
+  gender: string;
   country: string;
-  guestType: string;
   priority: string;
+  guestType: string;
   rsvpStatus: string;
-  gender?: string;
 } 

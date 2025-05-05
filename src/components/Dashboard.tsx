@@ -6,7 +6,7 @@ import { db } from '../firebase/config';
 import { Guest } from '../types/guest';
 
 const Dashboard: React.FC = () => {
-  const { data: guests = [] } = useQuery({
+  const { data: guests = [], isLoading } = useQuery({
     queryKey: ['guests'],
     queryFn: async () => {
       const querySnapshot = await getDocs(collection(db, 'guests'));
@@ -15,17 +15,17 @@ const Dashboard: React.FC = () => {
   });
 
   const totalGuests = guests.length;
-  const totalSpouses = guests.reduce((total: number, guest: Guest) => total + guest.spouse, 0);
-  const totalChildren = guests.reduce((total: number, guest: Guest) => total + guest.children, 0);
-  const totalInfants = guests.reduce((total: number, guest: Guest) => total + guest.infants, 0);
+  const totalSpouses = guests.reduce((total, guest) => total + guest.spouse, 0);
+  const totalChildren = guests.reduce((total, guest) => total + guest.children, 0);
+  const totalInfants = guests.reduce((total, guest) => total + guest.infants, 0);
 
-  const confirmedGuests = guests.filter((g: Guest) => g.rsvpStatus === 'confirmed').length;
-  const pendingGuests = guests.filter((g: Guest) => g.rsvpStatus === 'pending').length;
-  const declinedGuests = guests.filter((g: Guest) => g.rsvpStatus === 'declined').length;
+  const confirmedGuests = guests.filter(g => g.rsvpStatus === 'confirmed').length;
+  const pendingGuests = guests.filter(g => g.rsvpStatus === 'pending').length;
+  const declinedGuests = guests.filter(g => g.rsvpStatus === 'declined').length;
 
-  const familyGuests = guests.filter((g: Guest) => g.guestType === 'family').length;
-  const friendGuests = guests.filter((g: Guest) => g.guestType === 'friend').length;
-  const colleagueGuests = guests.filter((g: Guest) => g.guestType === 'colleague').length;
+  const familyGuests = guests.filter(g => g.guestType === 'family').length;
+  const friendGuests = guests.filter(g => g.guestType === 'friend').length;
+  const colleagueGuests = guests.filter(g => g.guestType === 'colleague').length;
 
   return (
     <Box sx={{ p: 3 }}>
