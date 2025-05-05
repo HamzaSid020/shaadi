@@ -28,10 +28,12 @@ import {
   TablePagination,
   SelectChangeEvent,
 } from '@mui/material';
-import { Add as AddIcon, Search as SearchIcon, Clear as ClearIcon, Edit as EditIcon, Check as CheckIcon, Close as CloseIcon, Refresh as RefreshIcon } from '@mui/icons-material';
+import { Add as AddIcon, Search as SearchIcon, Clear as ClearIcon, Edit as EditIcon, Check as CheckIcon, Close as CloseIcon, Refresh as RefreshIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Guest } from '../types/guest';
 import { getGuests, updateGuest, guestKeys } from '../services/guestService';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 const GuestList: React.FC = () => {
   const navigate = useNavigate();
@@ -214,6 +216,10 @@ const GuestList: React.FC = () => {
     setEditingData(null);
   };
 
+  const handleBulkImport = () => {
+    navigate('/bulk-import');
+  };
+
   if (isLoading) {
     console.log('Loading guests...');
     return (
@@ -267,6 +273,16 @@ const GuestList: React.FC = () => {
               onClick={() => navigate('/add-guest')}
             >
               Add Guest
+            </Button>
+          </Tooltip>
+          <Tooltip title="Bulk Import">
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<CloudUploadIcon />}
+              onClick={handleBulkImport}
+            >
+              Bulk Import
             </Button>
           </Tooltip>
         </Box>
@@ -569,6 +585,15 @@ const GuestList: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={filteredGuests.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </Box>
   );
 };

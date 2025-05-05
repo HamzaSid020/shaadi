@@ -14,7 +14,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['@emotion/react', '@emotion/styled']
   },
-  base: '/shaadi/',
+  base: process.env.NODE_ENV === 'production' ? '/shaadi/' : '/',
   build: {
     outDir: 'dist',
     sourcemap: true,

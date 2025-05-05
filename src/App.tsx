@@ -11,6 +11,7 @@ import Settings from './components/Settings';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase/config';
 import { ThemeProvider, useThemeContext } from './context/ThemeContext';
+import BulkImport from './components/BulkImport';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,7 +80,7 @@ const App: React.FC = () => {
       <ThemeProvider>
         <CssBaseline />
         <GlobalStylesWrapper />
-        <Router>
+        <Router basename={process.env.NODE_ENV === 'production' ? '/shaadi' : ''}>
           <Routes>
             <Route path="/signin" element={<SignIn />} />
             <Route
@@ -94,6 +95,7 @@ const App: React.FC = () => {
               <Route path="guests" element={<GuestList />} />
               <Route path="add-guest" element={<AddGuestForm />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="bulk-import" element={<BulkImport />} />
             </Route>
           </Routes>
         </Router>

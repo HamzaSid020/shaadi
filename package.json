@@ -1,5 +1,5 @@
 {
-  "name": "guestlist-app",
+  "name": "shaadi",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "11.11.1",
-    "@emotion/styled": "11.11.0",
-    "@mui/material": "5.15.7",
-    "@mui/icons-material": "5.15.7",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.10",
+    "@mui/material": "^5.15.10",
     "@tanstack/react-table": "^8.13.2",
     "chart.js": "^4.4.1",
     "firebase": "^10.8.0",
@@ -32,6 +32,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.2.2",
-    "vite": "^5.1.0"
+    "vite": "^6.3.4"
   }
 }
