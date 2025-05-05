@@ -1,54 +1,128 @@
-# React + TypeScript + Vite
+# Guest List Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive web application for managing wedding guest lists, built with React, TypeScript, and Firebase.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔐 **Secure Authentication**
+  - Email/password login
+  - Protected routes
+  - Session management
 
-## Expanding the ESLint configuration
+- 👥 **Guest Management**
+  - Add, edit, and remove guests
+  - Track RSVP status (Accepted, Pending, Declined)
+  - Manage guest details (name, email, phone, etc.)
+  - Track spouse and children information
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 📊 **Dashboard & Analytics**
+  - Real-time guest statistics
+  - RSVP status distribution
+  - Country-wise guest distribution
+  - Priority level tracking
+  - Response rate monitoring
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- 🎨 **Modern UI/UX**
+  - Material-UI components
+  - Responsive design
+  - Dark/Light theme support
+  - Interactive data visualizations
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- 🔄 **Real-time Updates**
+  - Firebase integration
+  - Instant data synchronization
+  - Offline support
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Tech Stack
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- **Frontend**
+  - React 18
+  - TypeScript
+  - Material-UI
+  - React Query
+  - React Router
+  - Chart.js
+
+- **Backend**
+  - Firebase Authentication
+  - Firebase Firestore
+  - Firebase Hosting
+
+- **Development Tools**
+  - Vite
+  - ESLint
+  - TypeScript
+  - GitHub Actions
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm (v9 or higher)
+- Firebase account
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/guestlist-app.git
+   cd guestlist-app
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env.local` file in the root directory with your Firebase configuration:
+   ```
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Deployment
+
+This project is configured for automatic deployment to GitHub Pages using GitHub Actions. The deployment process:
+
+1. Builds the application
+2. Uses environment variables from GitHub Secrets
+3. Deploys to GitHub Pages
+
+### Setting up GitHub Secrets
+
+Add the following secrets to your repository:
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Material-UI for the component library
+- Firebase for the backend services
+- React Query for data fetching and caching
+- Chart.js for data visualization
