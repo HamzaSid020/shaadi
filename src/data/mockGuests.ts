@@ -4,35 +4,34 @@ export const mockGuests: Guest[] = [
   {
     id: '1',
     name: 'John Doe',
-    spouse: 'Jane Doe',
-    children: ['Alice', 'Bob'],
-    hasInfant: false,
-    gender: 'male',
-    country: 'USA',
+    spouse: 1,
+    children: 2,
+    infants: 0,
+    country: 'US',
+    guestType: 'family',
     priority: 'high',
-    guestType: 'friend',
     rsvpStatus: 'pending'
   },
   {
     id: '2',
-    name: 'Sarah Smith',
-    spouse: 'Mike Smith',
-    children: ['Emma'],
-    hasInfant: true,
-    gender: 'female',
+    name: 'Jane Smith',
+    spouse: 0,
+    children: 0,
+    infants: 0,
     country: 'UK',
+    guestType: 'friend',
     priority: 'medium',
-    guestType: 'relative',
-    rsvpStatus: 'accepted'
+    rsvpStatus: 'pending'
   },
   {
     id: '3',
-    name: 'Alex Johnson',
-    hasInfant: false,
-    gender: 'other',
-    country: 'Canada',
-    priority: 'low',
+    name: 'Bob Johnson',
+    spouse: 1,
+    children: 0,
+    infants: 0,
+    country: 'CA',
     guestType: 'colleague',
-    rsvpStatus: 'declined'
+    priority: 'low',
+    rsvpStatus: 'confirmed'
   }
 ]; 

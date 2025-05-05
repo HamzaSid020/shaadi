@@ -63,18 +63,18 @@ export const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#2c3e50', // Dark blue-gray
+      main: '#2c3e50',
     },
     secondary: {
-      main: '#34495e', // Darker blue-gray
+      main: '#34495e',
     },
     background: {
-      default: '#f0f2f5', // Light gray background
-      paper: '#ffffff',   // White for paper components
+      default: '#f0f2f5',
+      paper: '#ffffff',
     },
     text: {
-      primary: '#2c3e50',  // Dark blue-gray for primary text
-      secondary: '#34495e', // Slightly lighter blue-gray for secondary text
+      primary: '#2c3e50',
+      secondary: '#34495e',
     },
   },
   components: {
