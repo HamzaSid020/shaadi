@@ -1,25 +1,195 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import React from 'react';
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
 import { CssBaseline, GlobalStyles, useTheme } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Layout from './components/Layout';
-import Dashboard from './components/Dashboard';
-import GuestList from './components/GuestList';
-import SignIn from './components/SignIn';
-import AddGuestForm from './components/AddGuestForm';
-import Settings from './components/Settings';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebase/config';
+import Dashboard from './pages/Dashboard';
+import Events from './pages/Events';
+import Budget from './pages/Budget';
+import Tasks from './pages/Tasks';
+import Guests from './pages/Guests';
+import Vendors from './pages/Vendors';
+import Gifts from './pages/Gifts';
+import Outfits from './pages/Outfits';
+import Seating from './pages/Seating';
+import CheckIn from './pages/CheckIn';
+import Documents from './pages/Documents';
+import Contacts from './pages/Contacts';
+import Settings from './pages/Settings';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import ActivityLog from './pages/ActivityLog';
+import UserManagement from './pages/UserManagement';
 import { ThemeProvider, useThemeContext } from './context/ThemeContext';
-import BulkImport from './components/BulkImport';
+import { CurrencyProvider } from './context/CurrencyContext';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute, { AdminRoute, OrganizerRoute } from './components/ProtectedRoute';
+import { PERMISSIONS } from './types/auth';
+import WeddingSetupWizard from './pages/WeddingSetupWizard';
+import ErrorBoundary from './components/ErrorBoundary';
+import InviteLogin from './pages/InviteLogin';
+import SeatingArrangement from './pages/SeatingArrangement';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 60, // 1 hour
-    },
+const queryClient = new QueryClient();
+
+const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <Login />,
   },
+  {
+    path: '/signup',
+    element: <SignUp />,
+  },
+  {
+    path: '/invite',
+    element: <InviteLogin />,
+  },
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <Layout>
+          <Outlet />
+        </Layout>
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: 'dashboard',
+        element: <Dashboard />,
+      },
+      {
+        path: 'wedding-setup',
+        element: (
+          <AdminRoute>
+            <WeddingSetupWizard />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: 'events',
+        element: (
+          <ProtectedRoute requiredPermission={PERMISSIONS.EVENTS.READ}>
+            <Events />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'budget',
+        element: (
+          <ProtectedRoute requiredPermission={PERMISSIONS.BUDGET.READ}>
+            <Budget />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'tasks',
+        element: (
+          <ProtectedRoute requiredPermission={PERMISSIONS.TASKS.READ}>
+            <Tasks />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'guests',
+        element: (
+          <ProtectedRoute requiredPermission={PERMISSIONS.GUESTS.READ}>
+            <Guests />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'vendors',
+        element: (
+          <ProtectedRoute requiredPermission={PERMISSIONS.VENDORS.READ}>
+            <Vendors />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'gifts',
+        element: (
+          <OrganizerRoute>
+            <Gifts />
+          </OrganizerRoute>
+        ),
+      },
+      {
+        path: 'outfits',
+        element: (
+          <OrganizerRoute>
+            <Outfits />
+          </OrganizerRoute>
+        ),
+      },
+      {
+        path: 'seating',
+        element: (
+          <OrganizerRoute>
+            <SeatingArrangement />
+          </OrganizerRoute>
+        ),
+      },
+      {
+        path: 'check-in',
+        element: (
+          <OrganizerRoute>
+            <CheckIn />
+          </OrganizerRoute>
+        ),
+      },
+      {
+        path: 'documents',
+        element: (
+          <ProtectedRoute requiredPermission={PERMISSIONS.DOCUMENTS.READ}>
+            <Documents />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'contacts',
+        element: (
+          <ProtectedRoute requiredPermission={PERMISSIONS.CONTACTS.READ}>
+            <Contacts />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'settings',
+        element: (
+          <AdminRoute>
+            <Settings />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: 'activity-log',
+        element: (
+          <AdminRoute>
+            <ActivityLog />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: 'users',
+        element: (
+          <AdminRoute>
+            <UserManagement />
+          </AdminRoute>
+        ),
+      },
+    ],
+  },
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
 });
 
 const GlobalStylesWrapper = () => {
@@ -56,50 +226,20 @@ const GlobalStylesWrapper = () => {
   );
 };
 
-const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (isAuthenticated === null) {
-    return null; // or a loading spinner
-  }
-
-  return isAuthenticated ? <>{children}</> : <Navigate to="/signin" />;
-};
-
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <CssBaseline />
-        <GlobalStylesWrapper />
-        <Router basename={process.env.NODE_ENV === 'production' ? '/shaadi' : ''}>
-          <Routes>
-            <Route path="/signin" element={<SignIn />} />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <Layout />
-                </PrivateRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="guests" element={<GuestList />} />
-              <Route path="add-guest" element={<AddGuestForm />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="bulk-import" element={<BulkImport />} />
-            </Route>
-          </Routes>
-        </Router>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <CurrencyProvider>
+            <CssBaseline />
+            <GlobalStylesWrapper />
+            <ErrorBoundary>
+              <RouterProvider router={router} />
+            </ErrorBoundary>
+          </CurrencyProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

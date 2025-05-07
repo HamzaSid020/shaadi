@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOrganizer() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'organizer';
+    }
+
+    function isVendor() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'vendor';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isUserActive() {
+      return getUserData().isActive == true;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isAdmin() || isOwner(userId));
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+      allow delete: if isAdmin();
+    }
+
+    // Events
+    match /events/{eventId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAuthenticated() && isUserActive() && (isAdmin() || isOrganizer());
+    }
+
+    // Budget
+    match /budget/{docId} {
+      allow read: if isAuthenticated() && isUserActive() && (isAdmin() || isOrganizer());
+      allow write: if isAuthenticated() && isUserActive() && (isAdmin() || isOrganizer());
+    }
+
+    // Tasks
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAuthenticated() && isUserActive() && (isAdmin() || isOrganizer());
+    }
+
+    // Guests
+    match /guests/{guestId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAuthenticated() && isUserActive() && (isAdmin() || isOrganizer());
+      allow update: if isAuthenticated() && isUserActive() && isOwner(guestId) && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus']);
+    }
+
+    // Vendors
+    match /vendors/{vendorId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAuthenticated() && isUserActive() && (isAdmin() || isOrganizer());
+      allow update: if isAuthenticated() && isUserActive() && isVendor() && 
+        resource.data.vendorId == request.auth.uid;
+    }
+
+    // Activity logs
+    match /activityLogs/{logId} {
+      allow read: if isAuthenticated() && isUserActive() && isAdmin();
+      allow create: if isAuthenticated() && isUserActive();
+      allow update, delete: if false;
+    }
+
+    // Documents
+    match /documents/{docId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAuthenticated() && isUserActive() && (isAdmin() || isOrganizer());
+    }
+
+    // Settings
+    match /settings/{settingId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAuthenticated() && isUserActive() && isAdmin();
+    }
+  }
+} 
